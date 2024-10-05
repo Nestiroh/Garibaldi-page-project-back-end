@@ -8,12 +8,22 @@ servers:
   - url: http://localhost:80/api
     description: Servidor local
 
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
+
 paths:
   /register:
     post:
       tags:
         - Autenticación
-      summary: Registrar un nuevo usuario 
+      summary: Registrar un nuevo usuario
       requestBody:
         description: Datos del nuevo usuarioAPI para el restaurante el gran garibaldi
         required: true
@@ -70,6 +80,8 @@ paths:
       tags:
         - Usuarios
       summary: Obtener todos los usuarios
+      security:
+        - bearerAuth: []
       responses:
         200:
           description: Lista de usuarios obtenida con éxito
@@ -106,6 +118,8 @@ paths:
       tags:
         - Usuarios
       summary: Obtener un usuario por ID
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -149,6 +163,8 @@ paths:
       tags:
         - Usuarios
       summary: Crear un nuevo usuario
+      security:
+        - bearerAuth: []
       requestBody:
         description: Datos para crear el nuevo usuario
         required: true
@@ -185,6 +201,8 @@ paths:
       tags:
         - Usuarios
       summary: Eliminar un usuario por ID
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path

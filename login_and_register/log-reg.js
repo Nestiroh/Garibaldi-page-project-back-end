@@ -1,5 +1,7 @@
 const db = require('../config/db'); // Conexión a la base de datos
 const argon2 = require('argon2');
+const jwt = require('jsonwebtoken');
+const secretKey = process.env.JWT_SECRET;
 
 // Registro de un nuevo usuario
 exports.registerUser = async (req, res) => {
@@ -36,34 +38,27 @@ exports.registerUser = async (req, res) => {
 // Login de usuario
 exports.loginUser = async (req, res) => {
     const { email, contrasena } = req.body;
-    if (!email || !contrasena) {
-        return res.status(400).send('Email y contraseña son obligatorios.');
-    }
 
     try {
-        // Busqueda de usuario por email
-        const query = `SELECT id_usuario, nombre, email, telefono, contrasena_encriptada, rol FROM usuarios WHERE email = ?`;
-        const [user] = await db.query(query, [email]);
-        if (user.length === 0) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
+        // Buscar al usuario por email
+        const [user] = await db.query('SELECT id_usuario, nombre, email, telefono, contrasena_encriptada, rol FROM usuarios WHERE email = ?', [email]);
 
-        const usuario = user[0];
+        if (user.length === 0) return res.status(401).json({ error: 'Credenciales incorrectas' });
 
-        // Verificacion de contrasena
-        const contrasenaValida = await argon2.verify(usuario.contrasena_encriptada, contrasena);
-        if (!contrasenaValida) {
-            return res.status(401).json({ error: 'Contraseña incorrecta' });
-        }
+        // Verificar la contraseña
+        const validPassword = await argon2.verify(user[0].contrasena_encriptada, contrasena);
+        if (!validPassword) return res.status(401).json({ error: 'Credenciales incorrectas' });
 
-        res.status(200).json({
-            id_usuario: usuario.id_usuario,
-            nombre: usuario.nombre,
-            email: usuario.email,
-            telefono: usuario.telefono,
-            rol: usuario.rol
-        });
+        // Generar el token JWT
+        const token = jwt.sign(
+            { id_usuario: user[0].id_usuario, email: user[0].email, rol: user[0].rol },
+            secretKey,
+            { expiresIn: '1h' } // TIEMPO DE EXPIRACION DEL TOKEN
+        );
+
+        res.status(200).json({ token });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Error al iniciar sesión' });
     }
 };

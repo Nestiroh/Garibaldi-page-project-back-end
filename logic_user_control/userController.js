@@ -12,7 +12,7 @@ exports.getUsers = async (req, res) => {
     }
 };
 
-//Obtener un usuario por ID
+//Obtener un usuario por ID 
 exports.getUserById = async (req, res) => {
     try {
         const [user] = await db.query('SELECT id_usuario, nombre, email, telefono, rol FROM usuarios WHERE id_usuario = ?', [req.params.id]);
