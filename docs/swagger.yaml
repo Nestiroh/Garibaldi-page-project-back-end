@@ -1,0 +1,201 @@
+openapi: 3.0.0
+info:
+  title: Garibaldi API
+  version: 1.0.0
+  description: API for the El Gran Garibaldi restaurant
+
+servers:
+  - url: http://localhost:80/api
+    description: Servidor local
+
+paths:
+  /register:
+    post:
+      tags:
+        - Autenticación
+      summary: Registrar un nuevo usuario 
+      requestBody:
+        description: Datos del nuevo usuarioAPI para el restaurante el gran garibaldi
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  example: "Juan"
+                email:
+                  type: string
+                  example: "juan@example.com"
+                telefono:
+                  type: string
+                  example: "3123456789"
+                contrasena:
+                  type: string
+                  example: "password123"
+      responses:
+        201:
+          description: Usuario registrado con éxito
+        400:
+          description: Datos incompletos
+
+  /login:
+    post:
+      tags:
+        - Autenticación
+      summary: Iniciar sesión
+      requestBody:
+        description: Datos de autenticación
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: "juan@example.com"
+                contrasena:
+                  type: string
+                  example: "password123"
+      responses:
+        200:
+          description: Inicio de sesión exitoso
+        401:
+          description: Credenciales incorrectas
+
+  /show-users:
+    get:
+      tags:
+        - Usuarios
+      summary: Obtener todos los usuarios
+      responses:
+        200:
+          description: Lista de usuarios obtenida con éxito
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id_usuario:
+                      type: integer
+                      example: 1
+                    nombre:
+                      type: string
+                      example: "Juan"
+                    email:
+                      type: string
+                      example: "juan@example.com"
+                    telefono:
+                      type: string
+                      example: "3123456789"
+                    contrasena_encriptada:
+                      type: string
+                      example: "$argon2id$v=19$m=65536,t=3,p=4$..."
+                    rol:
+                      type: string
+                      example: "default"
+        500:
+          description: Error al obtener los usuarios
+
+  /show-users/{id}:
+    get:
+      tags:
+        - Usuarios
+      summary: Obtener un usuario por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        200:
+          description: Detalles del usuario obtenidos con éxito
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_usuario:
+                    type: integer
+                    example: 1
+                  nombre:
+                    type: string
+                    example: "Juan"
+                  email:
+                    type: string
+                    example: "juan@example.com"
+                  telefono:
+                    type: string
+                    example: "3123456789"
+                  contrasena_encriptada:
+                    type: string
+                    example: "$argon2id$v=19$m=65536,t=3,p=4$..."
+                  rol:
+                    type: string
+                    example: "default"
+        404:
+          description: Usuario no encontrado
+        500:
+          description: Error al obtener el usuario
+
+  /create-user:
+    post:
+      tags:
+        - Usuarios
+      summary: Crear un nuevo usuario
+      requestBody:
+        description: Datos para crear el nuevo usuario
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  example: "Juan"
+                email:
+                  type: string
+                  example: "juan@example.com"
+                telefono:
+                  type: string
+                  example: "3123456789"
+                contrasena:
+                  type: string
+                  example: "password123"
+                rol:
+                  type: string
+                  example: "default"
+      responses:
+        201:
+          description: Usuario creado con éxito
+        400:
+          description: Datos incompletos
+        500:
+          description: Error al crear el usuario
+
+  /delete-user/{id}:
+    delete:
+      tags:
+        - Usuarios
+      summary: Eliminar un usuario por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        200:
+          description: Usuario eliminado con éxito
+        404:
+          description: Usuario no encontrado
+        500:
+          description: Error al eliminar el usuario
