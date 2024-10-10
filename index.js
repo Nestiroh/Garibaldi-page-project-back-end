@@ -4,7 +4,8 @@ const app = express();//Desarollo de api en node.js
 const userRoutes = require('./routes/users'); //Ruta de usuarios
 const authRoutes = require('./routes/authenthication'); // Ruta login y registro
 const swaggerUi = require('swagger-ui-express');//Declaracion de swagger
-const YAML = require('yamljs');//Declaracion del archivo yaml para swagger
+const YAML = require('yamljs');//Declaracion del archivo yaml para swagger}
+const commentRoutes = require('./routes/comments');//Ruta de los comentarios
 
 app.use(express.json());  // Solicitudes por medio del JSON
 
@@ -18,7 +19,8 @@ app.get('/', (req, res) => {
 
 // Uso de las rutas
 app.use('/api', userRoutes); //Ruta de usuarios
-app.use('/api', authRoutes);
+app.use('/api', authRoutes);//Ruta de autenticacion
+app.use('/api', commentRoutes);//Ruta de los comentarios
 
 const port = process.env.PORT || 80;
 app.listen(port, () => {

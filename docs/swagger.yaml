@@ -79,7 +79,7 @@ paths:
     get:
       tags:
         - Usuarios
-      summary: Obtener todos los usuarios
+      summary: Obtener todos los usuarios (Solo administrador)
       security:
         - bearerAuth: []
       responses:
@@ -117,7 +117,7 @@ paths:
     get:
       tags:
         - Usuarios
-      summary: Obtener un usuario por ID
+      summary: Obtener un usuario por ID (Solo administrador)
       security:
         - bearerAuth: []
       parameters:
@@ -162,7 +162,7 @@ paths:
     post:
       tags:
         - Usuarios
-      summary: Crear un nuevo usuario
+      summary: Crear un nuevo usuario (Solo administrador)
       security:
         - bearerAuth: []
       requestBody:
@@ -200,7 +200,7 @@ paths:
     delete:
       tags:
         - Usuarios
-      summary: Eliminar un usuario por ID
+      summary: Eliminar un usuario por ID (Solo administrador)
       security:
         - bearerAuth: []
       parameters:
@@ -217,3 +217,115 @@ paths:
           description: Usuario no encontrado
         500:
           description: Error al eliminar el usuario
+  /comments:
+    post:
+      tags:
+        - Comentarios
+      summary: Crear un nuevo comentario 
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Datos del nuevo comentario
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                titulo:
+                  type: string
+                  example: "Excelente servicio"
+                calificacion:
+                  type: integer
+                  example: 5
+                comentario:
+                  type: string
+                  example: "La comida fue fantástica y el servicio increíble."
+      responses:
+        201:
+          description: Comentario creado con éxito
+        400:
+          description: Datos incompletos
+        401:
+          description: No autorizado, es necesario estar logueado
+
+    get:
+      tags:
+        - Comentarios
+      summary: Obtener todos los comentarios (Solo administrador), obtener los aprobados (Usuarios)
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Lista de comentarios obtenida con éxito 
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id_comentario:
+                      type: integer
+                      example: 1
+                    id_usuario:
+                      type: integer
+                      example: 1
+                    titulo:
+                      type: string
+                      example: "Excelente servicio"
+                    calificacion:
+                      type: integer
+                      example: 5
+                    comentario:
+                      type: string
+                      example: "La comida fue fantástica y el servicio increíble."
+                    fecha_comentario:
+                      type: string
+                      example: "2024-10-05T12:34:56Z"
+                    estado:
+                      type: string
+                      enum: ['Pendiente', 'Aprobado', 'Rechazado']
+                      example: "Pendiente"
+        401:
+          description: No autorizado, es necesario estar logueado
+        500:
+          description: Error al obtener los comentarios
+
+  /comments/{id_comentario}:
+    patch:
+      tags:
+        - Comentarios
+      summary: Cambiar el estado de un comentario (Solo administrador)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id_comentario
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: Estado a modificar
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                estado:
+                  type: string
+                  enum: ['Pendiente', 'Aprobado', 'Rechazado']
+                  example: "Aprobado"
+      responses:
+        200:
+          description: Estado del comentario modificado con éxito
+        400:
+          description: Datos incompletos o incorrectos
+        401:
+          description: No autorizado, solo administradores pueden modificar el estado
+        404:
+          description: Comentario no encontrado
+        500:
+          description: Error al modificar el estado del comentario
