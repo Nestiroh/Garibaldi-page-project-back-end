@@ -1,4 +1,4 @@
-const db = require('../config/db'); // Conexión a la base de datos
+const db = require('../../config/db'); // Conexión a la base de datos
 
 // Lógica para crear un comentario
 exports.createComment = async (req, res) => {
@@ -36,11 +36,9 @@ exports.createComment = async (req, res) => {
 exports.listComments = async (req, res) => {
     const { estado } = req.query; // Estado 
 
-    // Selección de columnas específicas para usuarios normales
     let query = 'SELECT calificacion, titulo, comentario, fecha_comentario FROM comentarios WHERE estado = ?'; 
     let params = ['Aprobado']; // Por defecto, los usuarios normales ven solo los aprobados
 
-    // Si el usuario es administrador, puede ver todos los comentarios o filtrarlos por estado
     if (req.user.rol === 'Administrador') {
         if (estado) {
             query = `
@@ -54,7 +52,6 @@ exports.listComments = async (req, res) => {
             params = [];
         }
     }
-
     try {
         const [comments] = await db.query(query, params);
         res.status(200).json(comments);

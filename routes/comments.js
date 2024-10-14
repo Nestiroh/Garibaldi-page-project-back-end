@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const commentController = require('../logic_comments/comments');
+const commentController = require('../controllers/logic_comments/comments');
 const { checkAdmin } = require('../middleware/checkAdmin');
 const { verifyToken } = require('../middleware/auth')
 

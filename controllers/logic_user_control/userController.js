@@ -1,4 +1,4 @@
-const db = require('../config/db'); // Conexión a la base de datos
+const db = require('../../config/db'); // Conexión a la base de datos
 const argon2 = require('argon2');//Declaracion para el hasheo de contraseñas
 
 //Obtener todos los usuarios
@@ -35,8 +35,8 @@ exports.createUser = async (req, res) => {
         const contrasena_encriptada = await argon2.hash(contrasena);//Hasheo
 
         const result = await db.query(
-            'INSERT INTO usuarios (nombre, email, telefono, contrasena_encriptada, rol) VALUES (?, ?, ?, ?, ?)',
-            [nombre, email, telefono, contrasena_encriptada, rol]
+            'INSERT INTO usuarios (nombre, email, telefono, contrasena_encriptada, rol, confirmado) VALUES (?, ?, ?, ?, ?, ?)',
+            [nombre, email, telefono, contrasena_encriptada, rol, 1]
         );
         
         const newUser = {
@@ -44,7 +44,8 @@ exports.createUser = async (req, res) => {
             nombre,
             email,
             telefono,
-            rol
+            rol,
+            confirmado : 1
         };
 
         res.status(201).json(newUser);

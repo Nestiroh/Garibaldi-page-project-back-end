@@ -10,6 +10,7 @@ const commentRoutes = require('./routes/comments');//Ruta de los comentarios
 app.use(express.json());  // Solicitudes por medio del JSON
 
 app.use(cors());
+
 const swaggerDocument = YAML.load('./docs/swagger.yaml');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
