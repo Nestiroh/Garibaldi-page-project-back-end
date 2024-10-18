@@ -4,13 +4,18 @@ const argon2 = require('argon2');//Declaracion para el hasheo de contraseñas
 //Obtener todos los usuarios
 exports.getUsers = async (req, res) => {
     try {
-        const [users] = await db.query('SELECT id_usuario, nombre, email, telefono, rol FROM usuarios');
+        const [users] = await db.query(`
+            SELECT  nombre, email, telefono, rol 
+            FROM usuarios 
+            WHERE rol IN ('Cocina', 'Caja', 'Bar', 'Mesero', 'Administrador')
+        `);
         res.status(200).json(users);
     } catch (error) {
-        console.error(error); 
+        console.error(error);
         res.status(500).json({ error: 'Error al obtener los usuarios' });
     }
 };
+
 
 //Obtener un usuario por ID 
 exports.getUserById = async (req, res) => {

@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authenthication'); // Ruta login y registro
 const swaggerUi = require('swagger-ui-express');//Declaracion de swagger
 const YAML = require('yamljs');//Declaracion del archivo yaml para swagger}
 const commentRoutes = require('./routes/comments');//Ruta de los comentarios
+const reservationsRoutes = require('./routes/reservations');//Ruta de los comentarios
 
 app.use(express.json());  // Solicitudes por medio del JSON
 
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 app.use('/api', userRoutes); //Ruta de usuarios
 app.use('/api', authRoutes);//Ruta de autenticacion
 app.use('/api', commentRoutes);//Ruta de los comentarios
+app.use('/api', reservationsRoutes);//Ruta de las reservas
 
 const port = process.env.PORT || 80;
 app.listen(port, () => {

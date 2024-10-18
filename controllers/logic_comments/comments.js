@@ -34,21 +34,21 @@ exports.createComment = async (req, res) => {
 
 // Lógica para listar comentarios
 exports.listComments = async (req, res) => {
-    const { estado } = req.query; // Estado 
+    const { estado } = req.query; 
 
     let query = 'SELECT calificacion, titulo, comentario, fecha_comentario FROM comentarios WHERE estado = ?'; 
-    let params = ['Aprobado']; // Por defecto, los usuarios normales ven solo los aprobados
+    let params = ['Aprobado']; 
 
     if (req.user.rol === 'Administrador') {
         if (estado) {
             query = `
                 SELECT id_comentario, id_usuario, titulo, calificacion, comentario, fecha_comentario, estado 
-                FROM comentarios WHERE estado = ?`; // Selección completa de campos para administradores que filtran por estado
+                FROM comentarios WHERE estado = ?`; 
             params = [estado];
         } else {
             query = `
                 SELECT id_comentario, id_usuario, titulo, calificacion, comentario, fecha_comentario, estado 
-                FROM comentarios`; // Selección completa de campos para administradores que ven todos los comentarios
+                FROM comentarios`; 
             params = [];
         }
     }

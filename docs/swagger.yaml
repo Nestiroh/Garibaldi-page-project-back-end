@@ -398,3 +398,107 @@ paths:
           description: Comentario no encontrado
         500:
           description: Error al modificar el estado del comentario
+  /reservations:
+    post:
+      summary: Crea una nueva reserva
+      description: Crea una nueva reserva en el sistema con los detalles del usuario, incluyendo la cantidad de personas, horario de la reserva, comentarios adicionales, y si hay niños acompañantes.
+      tags:
+        - Reservas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cantidad_personas:
+                  type: integer
+                  example: 2
+                  description: Número de personas para la reserva
+                horario_reserva:
+                  type: string
+                  format: date-time
+                  example: "2024-10-12T19:00:00"
+                  description: Fecha y hora de la reserva (en formato ISO 8601)
+                comentarios_adicionales:
+                  type: string
+                  example: "No quiero las mesas pegadas"
+                  description: Comentarios adicionales relacionados con la reserva
+                hay_nino:
+                  type: boolean
+                  example: true
+                  description: Indica si hay niños acompañando en la reserva
+                rango_edad_nino:
+                  type: string
+                  example: "2-3"
+                  description: Rango de edad de los niños si hay niños en la reserva (por ejemplo, "2-3")
+                motivo_reserva:
+                  type: string
+                  example: "cumpleaños_hombre"
+                  description: Motivo de la reserva (por ejemplo, "cumpleaños_hombre", "aniversario", etc.)
+      responses:
+        201:
+          description: Reserva creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_reserva:
+                    type: integer
+                    example: 123
+                    description: ID de la reserva creada
+                  mensaje:
+                    type: string
+                    example: "Reserva creada exitosamente"
+        400:
+          description: Error en la solicitud
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Datos inválidos en la solicitud"
+
+    get:
+      summary: Obtener todas las reservas
+      description: Devuelve una lista de todas las reservas registradas, junto con la información del usuario que realizó cada reserva.
+      tags:
+        - Reservas
+      responses:
+        '200':
+          description: Operación exitosa. Se devuelven las reservas.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id_reserva:
+                      type: integer
+                      example: 123
+                      description: ID de la reserva
+                    cantidad_personas:
+                      type: integer
+                      example: 4
+                    horario_reserva:
+                      type: string
+                      format: date-time
+                      example: '2024-10-20T19:00:00'
+                    comentarios_adicionales:
+                      type: string
+                      example: 'Mesa cerca de la ventana'
+                    hay_nino:
+                      type: boolean
+                      example: true
+                    rango_edad_nino:
+                      type: string
+                      example: '2-3'
+                    motivo_reserva:
+                      type: string
+                      example: 'cumpleaños_hombre'
+        500:
+          description: Error al obtener las reservas
