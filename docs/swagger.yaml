@@ -265,20 +265,20 @@ paths:
         500:
           description: Error al crear el usuario
 
-  /delete-user/{id}:
+  /delete-user/{email}:
     delete:
       tags:
         - Usuarios
-      summary: Eliminar un usuario por ID (Solo administrador)
+      summary: Eliminar un usuario por email (Solo administrador)
       security:
         - bearerAuth: []
       parameters:
-        - name: id
+        - name: email
           in: path
           required: true
           schema:
-            type: integer
-            example: 1
+            type: string
+            example: user@example.com  
       responses:
         200:
           description: Usuario eliminado con éxito
@@ -286,6 +286,50 @@ paths:
           description: Usuario no encontrado
         500:
           description: Error al eliminar el usuario
+  /update-user/{email}:
+    put:
+      tags:
+        - Usuarios
+      summary: Actualizar un usuario por email (Solo administrador)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "user@example.com"
+      requestBody:
+        description: Datos para actualizar el usuario
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  example: "Juan"
+                email:  # Campo para cambiar el email del usuario
+                  type: string
+                  example: "nuevo_email@example.com"
+                telefono:
+                  type: string
+                  example: "3123456789"
+                rol:
+                  type: string
+                  example: "Mesero"
+      responses:
+        200:
+          description: Usuario actualizado con éxito
+        400:
+          description: Datos incompletos
+        404:
+          description: Usuario no encontrado
+        500:
+          description: Error al actualizar el usuario
+
   /comments:
     post:
       tags:
@@ -463,7 +507,7 @@ paths:
                     example: "Datos inválidos en la solicitud"
 
     get:
-      summary: Obtener todas las reservas
+      summary: Obtener todas las reservas (Administrador)
       description: Devuelve una lista de todas las reservas registradas, junto con la información del usuario que realizó cada reserva.
       tags:
         - Reservas
@@ -502,3 +546,55 @@ paths:
                       example: 'cumpleaños_hombre'
         500:
           description: Error al obtener las reservas
+          
+  /delete-reservation/{id_reserva}:
+    delete:
+      tags:
+        - Reservas
+      summary: Eliminar una reserva por ID (Solo administrador)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id_reserva
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+          description: ID de la reserva a eliminar
+      responses:
+        200:
+          description: Reserva eliminada con éxito
+        404:
+          description: Reserva no encontrada
+        500:
+          description: Error al eliminar la reserva
+
+  /report/{month}/{year}:
+    get:
+      summary: "Generar un reporte mensual de reservas (Solo administrador)"
+      description: "Genera un PDF con todas las reservas del mes y año especificados, visible solo para administradores."
+      tags:
+        - "Reservas"
+      parameters:
+        - name: "month"
+          in: "path"
+          required: true
+          type: "integer"
+          description: "Mes para el cual se generará el reporte (1-12)."
+          example: 10
+        - name: "year"
+          in: "path"
+          required: true
+          type: "integer"
+          description: "Año para el cual se generará el reporte."
+          example: 2024
+      responses:
+        200:
+          description: "Reporte generado exitosamente."
+        400:
+          description: "Mes y/o año inválidos."
+        404:
+          description: "No se encontraron reservas para el mes y año especificados."
+        500:
+          description: "Error interno del servidor al generar el reporte."

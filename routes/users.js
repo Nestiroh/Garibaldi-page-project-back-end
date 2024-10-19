@@ -13,7 +13,10 @@ router.get('/show-users/:id', verifyToken, checkAdmin, userController.getUserByI
 // Ruta para crear un nuevo usuario
 router.post('/create-user', verifyToken, userController.createUser);
 
-// Ruta para eliminar un usuario
-router.delete('/delete-user/:id', verifyToken, checkAdmin, userController.deleteUser);
+// Ruta para eliminar usuario por email
+router.delete('/delete-user/:email', verifyToken, checkAdmin, userController.deleteUser);
+
+//Ruta para editar un usuario
+router.put('/update-user/:email', verifyToken, checkAdmin, userController.updateUser);
 
 module.exports = router;

@@ -63,10 +63,40 @@ exports.createUser = async (req, res) => {
 //Eliminar un usuario
 exports.deleteUser = async (req, res) => {
     try {
-        const result = await db.query('DELETE FROM usuarios WHERE id_usuario = ?', [req.params.id]);
-        if (result[0].affectedRows === 0) return res.status(404).send('Usuario no encontrado');
+        const result = await db.query('DELETE FROM usuarios WHERE email = ?', [req.params.email]);
+
+        if (result[0].affectedRows === 0) {
+            return res.status(404).send('Usuario no encontrado');
+        }
+
         res.status(200).json({ message: 'Usuario eliminado' });
     } catch (error) {
         res.status(500).json({ error: 'Error al eliminar el usuario' });
+    }
+};
+
+// Editar usuario
+exports.updateUser = async (req, res) => {
+    const { email } = req.params; // Usamos email de los parámetros de la URL
+    const { nombre, nuevo_email, telefono, rol } = req.body; // nuevo_email para actualizar el email del usuario
+
+    if (!nombre || !nuevo_email || !telefono || !rol) {
+        return res.status(400).send('Todos los campos son obligatorios.');
+    }
+
+    try {
+        const result = await db.query(
+            'UPDATE usuarios SET nombre = ?, email = ?, telefono = ?, rol = ? WHERE email = ?',
+            [nombre, nuevo_email, telefono, rol, email]
+        );
+
+        if (result[0].affectedRows === 0) {
+            return res.status(404).send('Usuario no encontrado');
+        }
+
+        res.status(200).json({ message: 'Usuario actualizado con éxito' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al actualizar el usuario' });
     }
 };

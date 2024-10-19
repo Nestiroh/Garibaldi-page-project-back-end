@@ -10,5 +10,11 @@ router.post('/reservations', verifyToken, reservationController.createReservatio
 // Ruta para ver las reservaciones (Administrador)
 router.get('/reservations', verifyToken, checkAdmin, reservationController.getReservations);
 
+// Ruta para generar el reporte
+router.get('/report/:month/:year', verifyToken, checkAdmin, reservationController.generateMonthlyReport);
+
+// Ruta para eliminar una reserva por ID
+router.delete('/delete-reservation/:id_reserva', verifyToken, checkAdmin, reservationController.deleteReservation);
+
 module.exports = router;
 
