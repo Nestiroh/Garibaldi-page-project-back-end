@@ -7,6 +7,8 @@ const swaggerUi = require('swagger-ui-express');//Declaracion de swagger
 const YAML = require('yamljs');//Declaracion del archivo yaml para swagger}
 const commentRoutes = require('./routes/comments');//Ruta de los comentarios
 const reservationsRoutes = require('./routes/reservations');//Ruta de los comentarios
+const multimediaRoutes = require('./routes/multimedia');//Ruta de la multimedia
+const ordersRoutes = require('./routes/order');//Ruta de las ordenes
 
 app.use(express.json());  // Solicitudes por medio del JSON
 
@@ -24,6 +26,8 @@ app.use('/api', userRoutes); //Ruta de usuarios
 app.use('/api', authRoutes);//Ruta de autenticacion
 app.use('/api', commentRoutes);//Ruta de los comentarios
 app.use('/api', reservationsRoutes);//Ruta de las reservas
+app.use('/api', multimediaRoutes);//Ruta de la multimedia
+app.use('/api', ordersRoutes);//Ruta de las ordenes
 
 const port = process.env.PORT || 80;
 app.listen(port, () => {

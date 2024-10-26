@@ -524,28 +524,43 @@ paths:
                     id_reserva:
                       type: integer
                       example: 123
-                      description: ID de la reserva
+                      description: ID único de la reserva
                     cantidad_personas:
                       type: integer
                       example: 4
+                      description: Número de personas en la reserva
                     horario_reserva:
                       type: string
                       format: date-time
                       example: '2024-10-20T19:00:00'
+                      description: Fecha y hora de la reserva
                     comentarios_adicionales:
                       type: string
                       example: 'Mesa cerca de la ventana'
+                      description: Comentarios adicionales del usuario
                     hay_nino:
                       type: boolean
                       example: true
+                      description: Indica si hay niños en la reserva
                     rango_edad_nino:
                       type: string
                       example: '2-3'
+                      description: Rango de edad de los niños
                     motivo_reserva:
                       type: string
                       example: 'cumpleaños_hombre'
-        500:
-          description: Error al obtener las reservas
+                      description: Motivo de la reserva
+                    usuario_nombre:
+                      type: string
+                      example: 'Juan Pérez'
+                      description: Nombre del usuario que realizó la reserva
+                    usuario_email:
+                      type: string
+                      format: email
+                      example: 'juan.perez@example.com'
+                      description: Correo electrónico del usuario
+        '500':
+          description: Error interno del servidor.
           
   /delete-reservation/{id_reserva}:
     delete:
@@ -598,3 +613,179 @@ paths:
           description: "No se encontraron reservas para el mes y año especificados."
         500:
           description: "Error interno del servidor al generar el reporte."
+  /add-image:
+    post:
+      tags:
+        - Multimedia
+      summary: Subir una nueva imagen (Solo administradores)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Imagen a subir (JPG o PNG)
+                seccion:
+                  type: string
+                  enum: ['Inicio', 'Nosotros', 'Shows', 'Agrupaciones']
+                  example: 'Inicio'
+      responses:
+        201:
+          description: Imagen agregada con éxito
+        400:
+          description: Todos los campos son obligatorios
+        500:
+          description: Error al subir la imagen
+
+  /delete-image/{id_foto}:
+    delete:
+      tags:
+        - Multimedia
+      summary: Eliminar una imagen por id (Solo administradores)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id_foto
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        200:
+          description: Imagen eliminada con éxito
+        404:
+          description: Imagen no encontrada
+        500:
+          description: Error al eliminar la imagen
+
+  /images:
+    get:
+      tags:
+        - Multimedia
+      summary: Obtener todas las imágenes activas
+      responses:
+        200:
+          description: Lista de imágenes activas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id_foto:
+                      type: integer
+                    id_usuario:
+                      type: integer
+                    url_foto:
+                      type: string
+                    seccion:
+                      type: string
+                    estado:
+                      type: integer
+        500:
+          description: Error al obtener las imágenes
+  /orders:
+    post:
+      tags:
+        - Orders
+      summary: Crear una nueva orden (Solo meseros)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id_mesa:
+                  type: integer
+                  example: 2
+                id_usuario:
+                  type: integer
+                  example: 5
+                productos:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id_producto:
+                        type: integer
+                        example: 1
+                      cantidad:
+                        type: integer
+                        example: 2
+                      comentarios:
+                        type: string
+                        example: "Sin cebolla"
+      responses:
+        201:
+          description: Orden creada con éxito
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Orden creada con éxito"
+                  id_orden:
+                    type: integer
+                    example: 123
+        400:
+          description: Todos los campos son obligatorios y debe haber al menos un producto en la orden
+        500:
+          description: Error al crear la orden
+  /orders/pending:
+    get:
+      tags:
+        - Orders
+      summary: Obtener órdenes pendientes en preparación
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Lista de órdenes pendientes en preparación
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id_orden:
+                      type: integer
+                      example: 123
+                    id_mesa:
+                      type: integer
+                      example: 5
+                    id_mesero:
+                      type: integer
+                      example: 3
+                    fecha_orden:
+                      type: string
+                      format: date-time
+                      example: "2024-10-12T12:00:00Z"
+                    estado:
+                      type: string
+                      example: "Preparación"
+                    id_producto:
+                      type: integer
+                      example: 1
+                    cantidad:
+                      type: integer
+                      example: 2
+                    comentarios:
+                      type: string
+                      example: "Sin cebolla"
+        500:
+          description: Error al obtener órdenes pendientes
+

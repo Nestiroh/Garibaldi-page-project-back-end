@@ -45,11 +45,11 @@ exports.createReservation = async (req, res) => {
 exports.getReservations = async (req, res) => {
     try {
         const query = `
-            SELECT r.cantidad_personas, r.horario_reserva, r.comentarios_adicionales, 
-                   r.hay_nino, r.rango_edad_nino, r.motivo_reserva, 
-                   u.nombre AS usuario_nombre, u.email AS usuario_email
-            FROM reservas r
-            JOIN usuarios u ON r.id_usuario = u.id_usuario
+        SELECT r.id_reserva, r.cantidad_personas, r.horario_reserva, r.comentarios_adicionales, 
+            r.hay_nino, r.rango_edad_nino, r.motivo_reserva, 
+            u.nombre AS usuario_nombre, u.email AS usuario_email
+        FROM reservas r
+        JOIN usuarios u ON r.id_usuario = u.id_usuario;
         `;
 
         const [reservations] = await db.query(query);
