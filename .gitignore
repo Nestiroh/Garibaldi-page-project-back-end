@@ -1,1 +1,13 @@
+# Ignorar archivos de configuración locales
 .env
+.DS_Store
+
+# Ignorar archivos generados por el build
+/dist
+/build
+
+# Ignorar archivos de caché
+npm-cache/
+
+# Ignorar archivos de IDE
+.idea/
