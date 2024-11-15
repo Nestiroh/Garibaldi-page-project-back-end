@@ -77,21 +77,45 @@ exports.deleteUser = async (req, res) => {
 
 // Editar usuario
 exports.updateUser = async (req, res) => {
-    const { email } = req.params; // Usamos email de los parámetros de la URL
-    const { nombre, nuevo_email, telefono, rol } = req.body; // nuevo_email para actualizar el email del usuario
+    const { email } = req.params;
+    const { nombre, nuevo_email, telefono, rol } = req.body;
 
-    if (!nombre || !nuevo_email || !telefono || !rol) {
-        return res.status(400).send('Todos los campos son obligatorios.');
+    if (!nombre && !nuevo_email && !telefono && !rol) {
+        return res.status(400).json({ error: 'Al menos un campo debe estar presente para actualizar.' });
     }
+
+    const fieldsToUpdate = [];
+    const valuesToUpdate = [];
+
+    // Agrega los campos presentes en la solicitud a la lista de actualización
+    if (nombre) {
+        fieldsToUpdate.push('nombre = ?');
+        valuesToUpdate.push(nombre);
+    }
+    if (nuevo_email) {
+        fieldsToUpdate.push('email = ?');
+        valuesToUpdate.push(nuevo_email);
+    }
+    if (telefono) {
+        fieldsToUpdate.push('telefono = ?');
+        valuesToUpdate.push(telefono);
+    }
+    if (rol) {
+        fieldsToUpdate.push('rol = ?');
+        valuesToUpdate.push(rol);
+    }
+
+    // Agrega el email para la condición WHERE
+    valuesToUpdate.push(email);
 
     try {
         const result = await db.query(
-            'UPDATE usuarios SET nombre = ?, email = ?, telefono = ?, rol = ? WHERE email = ?',
-            [nombre, nuevo_email, telefono, rol, email]
+            `UPDATE usuarios SET ${fieldsToUpdate.join(', ')} WHERE email = ?`,
+            valuesToUpdate
         );
 
         if (result[0].affectedRows === 0) {
-            return res.status(404).send('Usuario no encontrado');
+            return res.status(404).json({ error: 'Usuario no encontrado' });
         }
 
         res.status(200).json({ message: 'Usuario actualizado con éxito' });
@@ -100,3 +124,4 @@ exports.updateUser = async (req, res) => {
         res.status(500).json({ error: 'Error al actualizar el usuario' });
     }
 };
+

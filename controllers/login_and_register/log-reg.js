@@ -30,9 +30,38 @@ exports.registerUser = async (req, res) => {
             to: email,
             subject: 'Confirma tu cuenta en Garibaldi',
             html: `
-                <h1>Bienvenido a Garibaldi</h1>
-                <p>Haz clic en el enlace para confirmar tu cuenta:</p>
-                <a href="${process.env.BASE_URL}/api/confirm?token=${token}">Confirmar cuenta</a>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Mostrar Imagen</title>
+                </head>
+                <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #ffffff;">
+                    <div style="max-width: 600px; margin: 0 auto; background-color: #464646; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                        <div style="text-align: center; padding: 20px; background-color: #f9af3a; color: #000000; border-radius: 10px;">
+                            <h1>¡Cuenta Creada!</h1>
+                        </div>
+                        <div style="color: #ffffff; padding: 20px; text-align: center;">
+                            <p>Hola Bienvenido,</p>
+                            <p>Gracias por crear una cuenta con nosotros. Por favor, confirma tu correo electrónico haciendo clic en el botón a continuación:</p>
+                            <a href="${process.env.BASE_URL}/api/confirm?token=${token}" style="display: inline-block; padding: 10px 20px; margin: 20px 0; text-align: center; color: #000000; background-color: #f9af3a; text-decoration: none; border-radius: 5px;">Confirmar Correo</a>
+                            <p>Si no creaste esta cuenta, puedes ignorar este correo.</p>
+                            <p>Gracias</p>
+                            <table width="100%" style="margin-top: 20px;">
+                                <tr>
+                                    <td align="center">
+                                        <img src="https://i.imgur.com/bmD0gz4.png" alt="Logo 1" style="width: 20%; max-width: 100px; height: auto; margin-right: 10px;">
+                                        <img src="https://i.imgur.com/JAqLNW0.png" alt="Logo 2" style="width: 50%; max-width: 200px; height: auto;">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div style="color: #ffffff; text-align: center; padding-top: 20px; background-color: #464646; border-radius: 0 0 10px 10px;">
+                            <p>© Copyright El Gran Garibaldi</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
             `
         };
 
@@ -66,21 +95,65 @@ exports.confirmUser = async (req, res) => {
         const result = await db.query(query, [nombre, email, telefono, contrasena_encriptada]);
         const htmlResponse = `
             <html>
-                <head>
-                    <title>Cuenta Confirmada</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; text-align: center; padding: 50px; }
-                        h1 { color: #4CAF50; }
-                        p { font-size: 18px; }
-                        a { color: #4CAF50; text-decoration: none; }
-                    </style>
-                </head>
-                <body>
-                    <h1>¡Cuenta Confirmada!</h1>
+            <head>
+                <title>Cuenta Confirmada</title>
+                <style>
+                    body { font-family: Arial, sans-serif; background-color: #000000; color: #ffffff; text-align: center; padding: 50px; }
+                    h1 { color: #000000; background-color: #f9af3a; padding: 3%; border-radius: 15em; }
+                    p { font-size: 30px; }
+                    a { color: #f9af3a; text-decoration: none; }
+                    div { background-color: #000000; }
+                    .button {
+                        margin: 0;
+                        height: auto;
+                        background: transparent;
+                        padding: 0;
+                        border: none;
+                        cursor: pointer;
+                        --border-right: 6px;
+                        --text-stroke-color: rgba(255,255,255,0.6);
+                        --animation-color: #f9af3a;
+                        --fs-size: 2em;
+                        letter-spacing: 3px;
+                        text-decoration: none;
+                        font-size: var(--fs-size);
+                        font-family: "Arial";
+                        position: relative;
+                        text-transform: uppercase;
+                        color: transparent;
+                        -webkit-text-stroke: 1px var(--text-stroke-color);
+                    }
+                    .hover-text {
+                        position: absolute;
+                        box-sizing: border-box;
+                        content: attr(data-text);
+                        color: var(--animation-color);
+                        width: 0%;
+                        inset: 0;
+                        border-right: var(--border-right) solid var(--animation-color);
+                        overflow-x: auto;
+                        white-space: nowrap;
+                        transition: 0.5s;
+                        -webkit-text-stroke: 1px var(--animation-color);
+                        scrollbar-width: none;
+                    }
+                    .button:hover .hover-text {
+                        width: 100%;
+                        filter: drop-shadow(0 0 23px var(--animation-color));
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>¡Cuenta Confirmada!</h1>
+                <div class="background-form">
                     <p>Hola ${nombre},</p>
-                    <p>Tu cuenta ha sido confirmada con éxito. Ahora puedes iniciar sesión.</p>
-                    <p><a href="http://26.25.146.33/login">Iniciar sesión</a></p>
-                </body>
+                    <p>Tu cuenta ha sido confirmada con éxito. Ahora puedes disfrutar de todos los beneficios y funcionalidades de nuestra página, haciendo clic en el botón para iniciar sesión.</p>
+                    <a href="http://26.253.156.252/login" class="button" data-text="Iniciar Sesión">
+                        <span class="actual-text">&nbsp;Iniciar Sesión&nbsp;</span>
+                        <span aria-hidden="true" class="hover-text">&nbsp;Iniciar Sesión&nbsp;</span>
+                    </a>
+                </div>
+            </body>
             </html>
         `;
         res.status(200).send(htmlResponse);

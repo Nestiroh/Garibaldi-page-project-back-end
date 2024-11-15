@@ -9,30 +9,45 @@ exports.createReservation = async (req, res) => {
     let { cantidad_personas, horario_reserva, comentarios_adicionales, hay_nino, rango_edad_nino, motivo_reserva } = req.body;
 
     const id_usuario = req.user.id_usuario;
-  
+
+    // Validar campos obligatorios
     if (!cantidad_personas || !horario_reserva || !motivo_reserva) {
-        return res.status(400).json({ error: 'Los campos cantidad de personas, horario de reserva y motivo de reserva son obligatorios.' });
+        return res.status(400).json({
+            error: 'Los campos cantidad de personas, horario de reserva y motivo de reserva son obligatorios.',
+        });
     }
-    
+
+    // Validar rango de edad de niños
     if (hay_nino) {
         const validRangos = ['2-3', '4-8', '9-12', '13-16'];
 
         if (!rango_edad_nino) {
-            return res.status(400).json({ error: 'Debe especificar el rango de edad del niño si se indicó que hay niños.' });
+            return res.status(400).json({
+                error: 'Debe especificar el rango de edad del niño si se indicó que hay niños.',
+            });
         }
 
         if (!validRangos.includes(rango_edad_nino)) {
-            return res.status(400).json({ error: 'El rango de edad del niño no es válido. Debe ser uno de: 2-3, 4-8, 9-12, 13-16.' });
+            return res.status(400).json({
+                error: 'El rango de edad del niño no es válido. Debe ser uno de: 2-3, 4-8, 9-12, 13-16.',
+            });
         }
-    } else {       
+    } else {
         rango_edad_nino = null;
     }
+
     try {
-        const query = `
-            INSERT INTO reservas (id_usuario, cantidad_personas, horario_reserva, comentarios_adicionales, hay_nino, rango_edad_nino, motivo_reserva)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `;
-        await db.query(query, [id_usuario, cantidad_personas, horario_reserva, comentarios_adicionales, hay_nino, rango_edad_nino, motivo_reserva]);
+        // Invocar el stored procedure
+        const query = 'CALL CreateReservation(?, ?, ?, ?, ?, ?, ?)';
+        await db.query(query, [
+            id_usuario,
+            cantidad_personas,
+            horario_reserva,
+            comentarios_adicionales,
+            hay_nino,
+            rango_edad_nino,
+            motivo_reserva,
+        ]);
 
         res.status(201).json({ message: 'Reserva creada exitosamente.' });
     } catch (error) {
@@ -40,6 +55,7 @@ exports.createReservation = async (req, res) => {
         res.status(500).json({ error: 'Error al crear la reserva' });
     }
 };
+
 
 
 exports.getReservations = async (req, res) => {

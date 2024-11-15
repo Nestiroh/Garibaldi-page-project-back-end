@@ -29,6 +29,17 @@ const fileFilter = (req, file, cb) => {
 };
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
+// Función auxiliar para convertir Buffer a String si es necesario
+const ensureString = (possibleBuffer) => {
+    if (Buffer.isBuffer(possibleBuffer)) {
+        return possibleBuffer.toString('utf8');
+    }
+    if (typeof possibleBuffer === 'string') {
+        return possibleBuffer;
+    }
+    return String(possibleBuffer); // Convertir otros tipos a string como último recurso
+};
+
 // Controlador para subir la imagen
 exports.addImage = [
     upload.single('image'),
@@ -106,13 +117,26 @@ exports.deleteImage = async (req, res) => {
 exports.getAllImages = async (req, res) => {
     try {
         const [images] = await db.query(
-            'SELECT * FROM multimedia WHERE estado = 1'
+            'SELECT * FROM multimedia WHERE estado = 1 ORDER BY id_foto DESC'
         );
 
-        // Convertir url_foto a string si es un Buffer
-        const formattedImages = images.map(image => ({
-            ...image,
-            url_foto: Buffer.isBuffer(image.url_foto) ? image.url_foto.toString() : image.url_foto
+        // Convertir cada imagen a base64
+        const formattedImages = await Promise.all(images.map(async (image) => {
+            const url_foto = ensureString(image.url_foto);
+            const imagePath = path.join(__dirname, '..', url_foto);
+
+            let base64Image = null;
+            try {
+                const imageBuffer = fs.readFileSync(imagePath);
+                base64Image = `data:image/${path.extname(imagePath).slice(1)};base64,${imageBuffer.toString('base64')}`;
+            } catch (fsError) {
+                console.error('Error al leer el archivo:', fsError);
+            }
+
+            return {
+                ...image,
+                url_foto: base64Image // Enviar la imagen como base64
+            };
         }));
 
         res.status(200).json(formattedImages);
@@ -121,4 +145,3 @@ exports.getAllImages = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener las imágenes' });
     }
 };
-

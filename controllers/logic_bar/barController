@@ -1,0 +1,45 @@
+const db = require('../../config/db');
+
+// Obtener órdenes pendientes para el bar (solo bebidas)
+exports.getPendingOrdersForBar = async (req, res) => {
+    try {
+        const [orders] = await db.query(`
+            SELECT o.id_orden, m.numero_mesa, o.id_mesero, o.fecha_orden, o.estado, 
+                   d.id_producto, p.nombre_producto, d.cantidad, d.comentarios
+            FROM ordenes o
+            JOIN mesas m ON o.id_mesa = m.id_mesa
+            JOIN detalles_orden d ON o.id_orden = d.id_orden
+            JOIN productos p ON d.id_producto = p.id_producto
+            WHERE o.estado = 'Preparación' AND p.tipo = 'bebida'
+            ORDER BY o.fecha_orden ASC
+        `);
+
+        res.status(200).json(orders);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener órdenes pendientes para el bar' });
+    }
+};
+
+// Marcar una orden como completada en el bar
+exports.markOrderAsCompleted = async (req, res) => {
+    const { id_orden } = req.params;
+
+    try {
+        // Actualizar el estado de la orden a "Completado"
+        const [result] = await db.query(`
+            UPDATE ordenes 
+            SET estado = 'Completado' 
+            WHERE id_orden = ? AND estado = 'Preparación'
+        `, [id_orden]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Orden no encontrada o ya completada' });
+        }
+
+        res.status(200).json({ message: 'Orden marcada como completada en el bar' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al actualizar el estado de la orden en el bar' });
+    }
+};

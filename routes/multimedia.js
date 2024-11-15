@@ -11,7 +11,7 @@ router.post('/add-image', verifyToken, checkAdmin, multimediaController.addImage
 router.delete('/delete-image/:id_foto', verifyToken, checkAdmin, multimediaController.deleteImage);
 
 // Obtener todas las imágenes activas (para mostrarlas en el frontend)
-router.get('/images', multimediaController.getAllImages);
+router.get('/images', verifyToken, checkAdmin, multimediaController.getAllImages);
 
 module.exports = router;
 

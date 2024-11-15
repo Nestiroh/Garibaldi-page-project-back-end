@@ -297,11 +297,12 @@ paths:
         - name: email
           in: path
           required: true
+          description: Email del usuario a actualizar
           schema:
             type: string
             example: "user@example.com"
       requestBody:
-        description: Datos para actualizar el usuario
+        description: Datos para actualizar el usuario (solo campos presentes serán actualizados)
         required: true
         content:
           application/json:
@@ -311,7 +312,7 @@ paths:
                 nombre:
                   type: string
                   example: "Juan"
-                email:  # Campo para cambiar el email del usuario
+                nuevo_email:
                   type: string
                   example: "nuevo_email@example.com"
                 telefono:
@@ -695,7 +696,7 @@ paths:
   /orders:
     post:
       tags:
-        - Orders
+        - Ordenes
       summary: Crear una nueva orden (Solo meseros)
       security:
         - bearerAuth: []
@@ -706,26 +707,31 @@ paths:
             schema:
               type: object
               properties:
-                id_mesa:
+                numero_mesa:
                   type: integer
+                  description: Número de la mesa donde se crea la orden. Debe existir en la base de datos.
                   example: 2
-                id_usuario:
-                  type: integer
-                  example: 5
                 productos:
                   type: array
+                  description: Lista de productos en la orden.
                   items:
                     type: object
                     properties:
                       id_producto:
                         type: integer
+                        description: ID del producto que se ordena.
                         example: 1
                       cantidad:
                         type: integer
+                        description: Cantidad del producto en la orden.
                         example: 2
                       comentarios:
                         type: string
+                        description: Comentarios adicionales para el producto (opcional).
                         example: "Sin cebolla"
+              required:
+                - numero_mesa
+                - productos
       responses:
         201:
           description: Orden creada con éxito
@@ -742,12 +748,16 @@ paths:
                     example: 123
         400:
           description: Todos los campos son obligatorios y debe haber al menos un producto en la orden
+        404:
+          description: La mesa especificada no existe
         500:
           description: Error al crear la orden
+
+
   /orders/pending:
     get:
       tags:
-        - Orders
+        - Ordenes
       summary: Obtener órdenes pendientes en preparación
       security:
         - bearerAuth: []
@@ -764,7 +774,7 @@ paths:
                     id_orden:
                       type: integer
                       example: 123
-                    id_mesa:
+                    numero_mesa:
                       type: integer
                       example: 5
                     id_mesero:
@@ -780,6 +790,9 @@ paths:
                     id_producto:
                       type: integer
                       example: 1
+                    nombre_producto:
+                      type: string
+                      example: "Pizza Margarita"  
                     cantidad:
                       type: integer
                       example: 2
@@ -789,3 +802,289 @@ paths:
         500:
           description: Error al obtener órdenes pendientes
 
+  /products:
+    get:
+      tags:
+        - Ordenes
+      summary: Obtener todos los productos disponibles
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Lista de productos disponibles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 12
+                    nombre_producto:
+                      type: string
+                      example: "Burrito"
+                    tipo:
+                      type: string
+                      enum:
+                        - Plato
+                        - Bebida
+                      example: "Plato"
+        500:
+          description: Error al obtener productos
+
+
+
+  /orders/kitchen:
+    get:
+      tags:
+        - Cocina
+      summary: Ver órdenes pendientes por cocinar
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Lista de órdenes pendientes en preparación
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id_orden:
+                      type: integer
+                      example: 123
+                    numero_mesa:
+                      type: integer
+                      example: 5
+                    id_mesero:
+                      type: integer
+                      example: 3
+                    fecha_orden:
+                      type: string
+                      format: date-time
+                      example: "2024-10-12T12:00:00Z"
+                    estado:
+                      type: string
+                      example: "Preparación"
+                    id_producto:
+                      type: integer
+                      example: 1
+                    nombre_producto:
+                      type: string
+                      example: "Pasta"
+                    cantidad:
+                      type: integer
+                      example: 2
+                    comentarios:
+                      type: string
+                      example: "Sin cebolla"
+
+  /orders/kitchen/{id_orden}/complete:
+    put:
+      tags:
+        - Cocina
+      summary: Marcar orden como completada
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id_orden
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Orden marcada como completada
+        404:
+          description: Orden no encontrada o ya completada
+        500:
+          description: Error al actualizar el estado de la orden
+
+  /products/{id_producto}/availability:
+    put:
+      tags:
+        - Cocina
+      summary: Cambiar disponibilidad de un producto
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id_producto
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                disponible:
+                  type: integer
+                  description: Cambiar a 1 para disponible o 0 para no disponible
+                  example: 1
+      responses:
+        200:
+          description: Disponibilidad del producto actualizada
+        404:
+          description: Producto no encontrado
+        500:
+          description: Error al actualizar disponibilidad del producto
+  /orders/bar:
+    get:
+      tags:
+        - Bar
+      summary: Ver órdenes pendientes de bebidas para el bar
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Lista de órdenes pendientes en preparación para el bar
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id_orden:
+                      type: integer
+                      example: 123
+                    numero_mesa:
+                      type: integer
+                      example: 5
+                    id_mesero:
+                      type: integer
+                      example: 3
+                    fecha_orden:
+                      type: string
+                      format: date-time
+                      example: "2024-10-12T12:00:00Z"
+                    estado:
+                      type: string
+                      example: "Preparación"
+                    id_producto:
+                      type: integer
+                      example: 1
+                    nombre_producto:
+                      type: string
+                      example: "Cerveza"
+                    cantidad:
+                      type: integer
+                      example: 2
+                    comentarios:
+                      type: string
+                      example: "Con hielo"
+        500:
+          description: Error al obtener órdenes pendientes para el bar
+
+  /orders/bar/{id_orden}/complete:
+    put:
+      tags:
+        - Bar
+      summary: Marcar orden de bebida como completada
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id_orden
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Orden marcada como completada en el bar
+        404:
+          description: Orden no encontrada o ya completada
+        500:
+          description: Error al actualizar el estado de la orden en el bar
+          
+  /cash/tables/{numero_mesa}:
+    get:
+      tags:
+        - Caja
+      summary: Obtener pedidos y total acumulado para una mesa
+      description: Recupera los detalles de cada pedido de una mesa y el total acumulado de estos, incluyendo el estado de la orden y el estado del pago.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: numero_mesa
+          in: path
+          required: true
+          description: Número de la mesa para obtener detalles
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Detalles de pedidos y total acumulado de una mesa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        numero_mesa:
+                          type: integer
+                          example: 5
+                        nombre_producto:
+                          type: string
+                          example: "Pasta"
+                        cantidad:
+                          type: integer
+                          example: 2
+                        precio:
+                          type: float
+                          example: 15.50
+                        total_producto:
+                          type: float
+                          example: 31.00
+                        estado_orden:
+                          type: string
+                          example: "Completado"
+                        estado_pago:
+                          type: string
+                          example: "Pendiente"
+                  total:
+                    type: float
+                    example: 45.50
+        500:
+          description: Error al obtener los pedidos y el total acumulado
+
+  /cash/tables/{numero_mesa}/confirm:
+    put:
+      tags:
+        - Caja
+      summary: Confirmar pago de una mesa
+      description: Cambia el estado de pago a "Pagado" y elimina los registros asociados de la mesa en caja, ordenes y detalles_orden.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: numero_mesa
+          in: path
+          required: true
+          description: Número de la mesa a confirmar el pago
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Pago confirmado y registros eliminados para la mesa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Pago confirmado y registros eliminados para la mesa"
+        404:
+          description: No se encontró un pedido pendiente para esta mesa
+        500:
+          description: Error al confirmar el pago
