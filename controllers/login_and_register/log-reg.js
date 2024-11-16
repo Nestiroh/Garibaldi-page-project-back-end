@@ -148,7 +148,7 @@ exports.confirmUser = async (req, res) => {
                 <div class="background-form">
                     <p>Hola ${nombre},</p>
                     <p>Tu cuenta ha sido confirmada con éxito. Ahora puedes disfrutar de todos los beneficios y funcionalidades de nuestra página, haciendo clic en el botón para iniciar sesión.</p>
-                    <a href="http://26.253.156.252/login" class="button" data-text="Iniciar Sesión">
+                    <a href="${process.env.FRONT_URL}/login" class="button" data-text="Iniciar Sesión">
                         <span class="actual-text">&nbsp;Iniciar Sesión&nbsp;</span>
                         <span aria-hidden="true" class="hover-text">&nbsp;Iniciar Sesión&nbsp;</span>
                     </a>
