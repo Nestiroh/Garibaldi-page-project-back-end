@@ -1,25 +1,22 @@
 const db = require('../../config/db');
 
-// Obtener órdenes pendientes para la cocina
+// Obtener órdenes pendientes para la cocina 
 exports.getPendingOrdersForKitchen = async (req, res) => {
     try {
-        const [orders] = await db.query(`
-            SELECT o.id_orden, m.numero_mesa, o.id_mesero, o.fecha_orden, o.estado, 
-                   d.id_producto, p.nombre_producto, d.cantidad, d.comentarios
-            FROM ordenes o
-            JOIN mesas m ON o.id_mesa = m.id_mesa
-            JOIN detalles_orden d ON o.id_orden = d.id_orden
-            JOIN productos p ON d.id_producto = p.id_producto
-            WHERE o.estado = 'Preparación' AND p.tipo = 'plato'
-            ORDER BY o.fecha_orden ASC
-        `);
+        // Llamada al procedimiento almacenado
+        const [result] = await db.query('CALL GetPendingOrdersForKitchen()');
 
+        // MySQL devuelve un array anidado al usar CALL
+        const orders = result[0];
+
+        // Responder con la lista de órdenes
         res.status(200).json(orders);
     } catch (error) {
-        console.error(error);
+        console.error('Error al obtener órdenes pendientes:', error);
         res.status(500).json({ error: 'Error al obtener órdenes pendientes' });
     }
 };
+
 
 
 // Marcar una orden como completada

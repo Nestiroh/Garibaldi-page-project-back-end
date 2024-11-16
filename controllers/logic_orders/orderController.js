@@ -99,18 +99,18 @@ exports.getPendingOrders = async (req, res) => {
 // Obtener todos los productos disponibles
 exports.getAllProducts = async (req, res) => {
     try {
-        // Consulta para obtener el id, nombre y tipo de todos los productos disponibles
-        const [products] = await db.query(`
-            SELECT id_producto AS id, nombre_producto, tipo 
-            FROM productos
-            WHERE disponible = 1
-        `);
+        // Llamada al procedimiento almacenado
+        const [products] = await db.query('CALL GetAvailableProducts()');
+        
+        // MySQL devuelve un array anidado al usar CALL
+        const result = products[0]; 
 
         // Responder con la lista de productos
-        res.status(200).json(products);
+        res.status(200).json(result);
     } catch (error) {
-        console.error(error);
+        console.error('Error al obtener los productos:', error);
         res.status(500).json({ error: 'Error al obtener los productos' });
     }
 };
+
 

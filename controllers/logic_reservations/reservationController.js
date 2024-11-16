@@ -60,26 +60,23 @@ exports.createReservation = async (req, res) => {
 
 exports.getReservations = async (req, res) => {
     try {
-        const query = `
-        SELECT r.id_reserva, r.cantidad_personas, r.horario_reserva, r.comentarios_adicionales, 
-            r.hay_nino, r.rango_edad_nino, r.motivo_reserva, 
-            u.nombre AS usuario_nombre, u.email AS usuario_email
-        FROM reservas r
-        JOIN usuarios u ON r.id_usuario = u.id_usuario;
-        `;
-
-        const [reservations] = await db.query(query);
+        // Llamada al procedimiento almacenado
+        const [reservations] = await db.query('CALL GetReservations()');
         
-        if (reservations.length === 0) {
+        // MySQL devuelve un array anidado al usar CALL
+        const result = reservations[0]; 
+
+        if (result.length === 0) {
             return res.status(404).json({ message: 'No se encontraron reservas' });
         }
 
-        res.status(200).json(reservations);
+        res.status(200).json(result);
     } catch (error) {
         console.error('Error al obtener las reservas:', error);
         res.status(500).json({ error: 'Error interno del servidor al obtener las reservas' });
     }
 };
+
 
 //Eliminar reservacion
 exports.deleteReservation = async (req, res) => {
