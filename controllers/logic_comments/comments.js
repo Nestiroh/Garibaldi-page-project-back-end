@@ -4,9 +4,6 @@ const db = require('../../config/db'); // Conexión a la base de datos
 exports.createComment = async (req, res) => {
     const { titulo, calificacion, comentario } = req.body;
 
-    // El id_usuario se extrae del token decodificado
-    const id_usuario = req.user.id_usuario;
-
     // Validar que todos los campos requeridos estén presentes
     if (!titulo || !calificacion || !comentario) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
@@ -17,10 +14,13 @@ exports.createComment = async (req, res) => {
         return res.status(400).json({ error: 'La calificación debe estar entre 1 y 5.' });
     }
 
+    // Si no se pasa un id_usuario, lo dejamos como NULL (suponiendo que la columna permite valores nulos)
+    const id_usuario = null; // Asignamos NULL si no es requerido
+
     try {
         const query = `
-            INSERT INTO comentarios (id_usuario, titulo, calificacion, comentario)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO comentarios (id_usuario, titulo, calificacion, comentario, estado)
+            VALUES (?, ?, ?, ?, 'Pendiente')  -- 'Pendiente' se asigna por defecto
         `;
         await db.query(query, [id_usuario, titulo, calificacion, comentario]);
 
@@ -30,6 +30,7 @@ exports.createComment = async (req, res) => {
         res.status(500).json({ error: 'Error al crear el comentario' });
     }
 };
+
 
 
 // Lógica para listar comentarios

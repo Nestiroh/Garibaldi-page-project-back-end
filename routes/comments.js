@@ -5,7 +5,7 @@ const { checkAdmin } = require('../middleware/checkAdmin');
 const { verifyToken } = require('../middleware/auth')
 
 // Ruta para crear un comentario (solo usuarios registrados)
-router.post('/comments', verifyToken, commentController.createComment);
+router.post('/comments', commentController.createComment);
 
 // Ruta para listar comentarios
 router.get('/comments', verifyToken, commentController.listComments);
